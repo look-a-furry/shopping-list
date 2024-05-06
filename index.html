@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
+    <title>Shopping List</title>
+    <style>
+        /* General styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+    
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+    
+        /* Input styles */
+        .input-container {
+            border-radius: 2px;
+            display: flex;
+            margin-bottom: 20px;
+        }
+    
+        .input-container input[type="text"] {
+            flex: 1;
+            border-radius: 5px;
+            border-width: 1px;
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    
+        .input-container button {
+            border-radius: 5px;
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            margin-left: 3px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007AFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    
+        /* Shopping list styles */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    
+        li {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    
+        li span {
+            flex: 1;
+        }
+    
+        li button {
+            margin: 2px;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    
+        li button.edit {
+            background-color: #007AFF; /* Blue color for the edit button */
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+    
+        li button.remove {
+            background-color: #FF3B30; /* Red color for the remove button */
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+        }
+    
+        /* Custom dialog styles */
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+    
+        .dialog-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex; /* Add display flex */
+            flex-direction: column; /* Stack buttons vertically */
+            align-items: center; /* Center horizontally */
+        }
+    
+        .dialog-content input[type="text"] {
+            width: min-content;
+            margin: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    
+        .dialog-content button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+    
+        /* Print and clear button styles */
+        #printButton {
+            background-color: darkgoldenrod;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    
+        #printButton:hover {
+            background-color: goldenrod;
+        }
+    
+        #clearButton {
+            background-color: #FF3B30; /* Red color for the clear button */
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    
+        #clearButton:hover {
+            background-color: #FF5E52; /* Darker red color on hover */
+        }
+    
+        /* Add margin between the print and clear buttons */
+        #clearButton,
+        #printButton {
+            margin-right: 10px;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Shopping List</h1>
+        <div class="input-container">
+            <input type="text" id="itemInput" placeholder="Enter item...">
+            <button onclick="addItem()">Add</button>
+        </div>
+        <ul id="shoppingList"></ul>
+        <button onclick="printShoppingList()" id="printButton">Print</button>
+        <button onclick="clearShoppingList()" id="clearButton">Clear</button>
+    </div>
+
+    <div id="editDialog" class="dialog">
+        <div class="dialog-content">
+            <input type="text" id="editInput">
+            <button onclick="saveEdit()">Save</button>
+            <button onclick="closeEditDialog()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
