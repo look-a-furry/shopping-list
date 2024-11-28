@@ -9,33 +9,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         shoppingList.forEach(function(item, index) {
             var li = document.createElement("li");
-            li.innerHTML = `
-                <input type="checkbox" ${item.checked ? "checked" : ""} onclick="toggleItemChecked(this, ${index})">
-                <span class="${item.checked ? "crossed" : ""}">${item.text}</span>
-                <button onclick="openEditDialog(${index})" class="edit">Edit</button>
-                <button onclick="removeItem(${index})" class="remove">Remove</button>
-            `;
+            li.innerHTML = `<span>${item}</span><button onclick="openEditDialog(${index})" class="edit">Edit</button><button onclick="removeItem(${index})" class="remove">Remove</button>`;
             shoppingListElement.appendChild(li);
         });
     }
-
-    // Function to toggle the checked state of an item
-    window.toggleItemChecked = function(checkbox, index) {
-        // Update the 'checked' state in the shopping list array
-        shoppingList[index].checked = checkbox.checked;
-
-        // Update the class of the corresponding span element
-        var listItem = checkbox.closest("li");
-        var span = listItem.querySelector("span");
-        if (checkbox.checked) {
-            span.classList.add("crossed");
-        } else {
-            span.classList.remove("crossed");
-        }
-
-        // Save the updated state to local storage
-        localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-    };
 
     // Render the shopping list on page load
     renderShoppingList();
@@ -43,10 +20,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Function to add an item to the shopping list
     window.addItem = function() {
         var inputField = document.getElementById("itemInput");
-        var itemText = inputField.value.trim();
-    
-        if (itemText !== "") {
-            shoppingList.push({ text: itemText, checked: false });
+        var item = inputField.value.trim();
+        
+        if (item !== "") {
+            shoppingList.push(item);
             localStorage.setItem("shoppingList", JSON.stringify(shoppingList)); // Save to local storage
             renderShoppingList();
             inputField.value = "";
