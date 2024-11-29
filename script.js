@@ -115,6 +115,42 @@ document.addEventListener("DOMContentLoaded", function() {
         renderShoppingList();
     };
 
+    // Function to print the shopping list
+    window.printShoppingList = function() {
+        var shoppingListItems = Array.from(document.querySelectorAll("#shoppingList > li"));
+        var printableContent = `
+            <h1 style="font-family: 'Courier New', monospace;">Shopping List</h1>
+            <form style="font-family: 'Courier New', monospace;">
+        `;
+    
+        shoppingListItems.forEach(function(item) {
+            var itemText = item.querySelector("span").innerText;
+            var isChecked = item.querySelector("input[type='checkbox']").checked;
+            printableContent += `
+                <label>
+                    <input type="checkbox" ${isChecked ? "checked" : ""}>
+                    ${itemText}
+                </label><br>
+            `;
+        });
+    
+        printableContent += "</form>";
+    
+        var printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Printable Shopping List</title>
+                </head>
+                <body style="font-family: 'Courier New', monospace;">
+                    ${printableContent}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
     // Event listener for the "Enter" key on the input field
     document.getElementById("itemInput").addEventListener("keyup", function(event) {
         if (event.key === "Enter") { // Check if the "Enter" key was pressed
