@@ -1,17 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Retrieve the shopping list and their checked state from local storage
     var shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
     var checkedItems = JSON.parse(localStorage.getItem("checkedItems")) || [];
 
-    // Function to render the shopping list
     function renderShoppingList() {
         var shoppingListElement = document.getElementById("shoppingList");
-        shoppingListElement.innerHTML = ""; // Clear previous content
+        shoppingListElement.innerHTML = "";
 
         shoppingList.forEach(function(item, index) {
             var li = document.createElement("li");
 
-            // Create a checkbox for the item
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.checked = checkedItems[index] || false;
@@ -19,14 +16,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 toggleStrikeThrough(index, checkbox.checked);
             });
 
-            // Create a span to hold the item text
             var span = document.createElement("span");
             span.textContent = item;
             if (checkbox.checked) {
                 span.style.textDecoration = "line-through";
             }
 
-            // Add edit and remove buttons
             var editButton = document.createElement("button");
             editButton.textContent = "Edit";
             editButton.className = "edit";
@@ -41,32 +36,28 @@ document.addEventListener("DOMContentLoaded", function() {
                 removeItem(index);
             };
 
-            // Append elements to the list item
             li.appendChild(checkbox);
             li.appendChild(span);
             li.appendChild(editButton);
             li.appendChild(removeButton);
 
-            // Append the list item to the list
             shoppingListElement.appendChild(li);
         });
     }
 
-    // Function to toggle strikethrough on the item
     function toggleStrikeThrough(index, isChecked) {
         checkedItems[index] = isChecked;
         localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
         renderShoppingList();
     }
 
-    // Function to add an item to the shopping list
     window.addItem = function() {
         var inputField = document.getElementById("itemInput");
         var item = inputField.value.trim();
         
         if (item !== "") {
             shoppingList.push(item);
-            checkedItems.push(false); // Add unchecked state for new item
+            checkedItems.push(false);
             localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
             localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
             renderShoppingList();
@@ -74,16 +65,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
-    // Function to remove an item from the shopping list
     window.removeItem = function(index) {
         shoppingList.splice(index, 1);
-        checkedItems.splice(index, 1); // Remove corresponding checked state
+        checkedItems.splice(index, 1);
         localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
         localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
         renderShoppingList();
     };
 
-    // Function to open the edit dialog
     window.openEditDialog = function(index) {
         var editInput = document.getElementById("editInput");
         editInput.value = shoppingList[index];
@@ -91,7 +80,6 @@ document.addEventListener("DOMContentLoaded", function() {
         editDialog.dataset.targetIndex = index;
     };
 
-    // Function to save the edited item
     window.saveEdit = function() {
         var editInput = document.getElementById("editInput");
         var index = editDialog.dataset.targetIndex;
@@ -101,12 +89,10 @@ document.addEventListener("DOMContentLoaded", function() {
         closeEditDialog();
     };
 
-    // Function to close the edit dialog
     window.closeEditDialog = function() {
         editDialog.style.display = "none";
     };
 
-    // Function to clear the entire shopping list
     window.clearShoppingList = function() {
         shoppingList = [];
         checkedItems = [];
@@ -115,49 +101,52 @@ document.addEventListener("DOMContentLoaded", function() {
         renderShoppingList();
     };
 
-    // Function to print the shopping list
-    window.printShoppingList = function() {
-        var shoppingListItems = Array.from(document.querySelectorAll("#shoppingList > li"));
-        var printableContent = `
-            <h1 style="font-family: 'Courier New', monospace;">Shopping List</h1>
-            <form style="font-family: 'Courier New', monospace;">
-        `;
-    
-        shoppingListItems.forEach(function(item) {
-            var itemText = item.querySelector("span").innerText;
-            var isChecked = item.querySelector("input[type='checkbox']").checked;
-            printableContent += `
-                <label>
-                    <input type="checkbox" ${isChecked ? "checked" : ""}>
-                    ${itemText}
-                </label><br>
-            `;
+    // EXPORT CSV FUNCTION
+    window.exportCSV = function() {
+        var csvContent = "data:text/csv;charset=utf-8,Item,Checked\n";
+        shoppingList.forEach((item, index) => {
+            csvContent += `"${item}",${checkedItems[index] ? "true" : "false"}\n`;
         });
-    
-        printableContent += "</form>";
-    
-        var printWindow = window.open("", "_blank");
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Printable Shopping List</title>
-                </head>
-                <body style="font-family: 'Courier New', monospace;">
-                    ${printableContent}
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "shopping_list.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
-    // Event listener for the "Enter" key on the input field
-    document.getElementById("itemInput").addEventListener("keyup", function(event) {
-        if (event.key === "Enter") { // Check if the "Enter" key was pressed
-            addItem();
-        }
-    });
+    // IMPORT CSV FUNCTION
+    window.importCSV = function(event) {
+        var file = event.target.files[0];
+        if (!file) return;
 
-    // Render the shopping list on page load
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var content = e.target.result.split("\n").slice(1); // Skip header row
+            shoppingList = [];
+            checkedItems = [];
+
+            content.forEach(row => {
+                if (row.trim() !== "") {
+                    var [item, checked] = row.split(",");
+                    item = item.replace(/^"|"$/g, ""); // Remove quotes
+                    shoppingList.push(item);
+                    checkedItems.push(checked.trim() === "true");
+                }
+            });
+
+            localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
+            localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
+            renderShoppingList();
+        };
+
+        reader.readAsText(file);
+    };
+
+    // Add import button event listener
+    document.getElementById("importFile").addEventListener("change", importCSV);
+
     renderShoppingList();
 });

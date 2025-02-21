@@ -183,7 +183,7 @@
     
         /* Print and clear button styles */
         #printButton {
-            background-color: darkgoldenrod;
+            background-color: #007AFF;
             color: #fff;
             padding: 10px 20px;
             font-size: 16px;
@@ -193,7 +193,7 @@
         }
     
         #printButton:hover {
-            background-color: goldenrod;
+            background-color: #007AFF;
         }
     
         #clearButton {
@@ -215,6 +215,38 @@
         #printButton {
             margin-right: 10px;
         }
+
+        /* Import and Export button styles */
+        #exportButton {
+            background-color: #4CAF50; /* Green color */
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #exportButton:hover {
+            background-color: #45A049; /* Darker green on hover */
+        }
+
+        /* Custom styling for the file input label */
+        #importFileLabel {
+            background-color: #4CAF50; /* Green color */
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #importFileLabel:hover {
+            background-color: #45A049; /* Darker green on hover */
+        }
     </style>
     
 </head>
@@ -226,8 +258,12 @@
             <button onclick="addItem()">Add</button>
         </div>
         <ul id="shoppingList"></ul>
-        <button onclick="printShoppingList()" id="printButton">Print</button>
-        <button onclick="clearShoppingList()" id="clearButton">Clear</button>
+        <button onclick="printShoppingList()" id="printButton">🖨️</button>
+        <button onclick="clearShoppingList()" id="clearButton">✖</button>
+        <button onclick="exportCSV()" id="exportButton">💾</button>
+        <label for="importFile" id="importFileLabel">📂</label>
+        <br><input type="file" id="importFile" accept=".csv" style="display: none;">
+
     </div>
 
     <div id="editDialog" class="dialog">
