@@ -248,35 +248,68 @@
         #importFileLabel:hover {
             background-color: #45A049; /* Darker green on hover */
         }
+
+        #app-wrapper {
+            width: 100vw;
+            height: 100vh;
+            overflow-x: hidden;
+            transform-origin: top left;
+            transition: transform 0.2s ease, width 0.2s ease;
+        }
+
+        @media (max-width: 800px) {
+            #app-wrapper {
+                transform: scale(0.9);
+                width: calc(100vw / 0.9);
+            }
+        }
+
+        @media (max-width: 600px) {
+            #app-wrapper {
+                transform: scale(0.8);
+                width: calc(100vw / 0.8);
+            }
+        }
+
+        @media (max-width: 400px) {
+            #app-wrapper {
+                transform: scale(0.7);
+                width: calc(100vw / 0.7);
+            }
+        }
+
     </style>
     
 </head>
+
 <body>
-    <div class="container">
-        <h1>Shopping List</h1>
-        <div class="input-container">
-            <input type="text" id="itemInput" placeholder="Enter item...">
-            <button onclick="addItem()">Add</button>
+  <div id="app-wrapper">
+        <div class="container">
+            <h1>Shopping List</h1>
+            <div class="input-container">
+                <input type="text" id="itemInput" placeholder="Enter item...">
+                <button onclick="addItem()">Add</button>
+            </div>
+            <ul id="shoppingList"></ul>
+            <button onclick="printShoppingList()" id="printButton">🖨️</button>
+            <button onclick="clearShoppingList()" id="clearButton">✖</button>
+            <button onclick="exportCSV()" id="exportButton">💾</button>
+            <label for="importFile" id="importFileLabel">📂</label>
+            <input type="file" id="importFile" style="display: none;">
+            <br>
+
         </div>
-        <ul id="shoppingList"></ul>
-        <button onclick="printShoppingList()" id="printButton">🖨️</button>
-        <button onclick="clearShoppingList()" id="clearButton">✖</button>
-        <button onclick="exportCSV()" id="exportButton">💾</button>
-        <label for="importFile" id="importFileLabel">📂</label>
-        <input type="file" id="importFile" style="display: none;">
-        <br>
 
-    </div>
-
-    <div id="editDialog" class="dialog">
-        <div class="dialog-content">
-            <input type="text" id="editInput">
-            <button onclick="saveEdit()">Save</button>
-            <button onclick="closeEditDialog()">Cancel</button>
+        <div id="editDialog" class="dialog">
+            <div class="dialog-content">
+                <input type="text" id="editInput">
+                <button onclick="saveEdit()">Save</button>
+                <button onclick="closeEditDialog()">Cancel</button>
+            </div>
         </div>
-    </div>
 
-    <script src="script.js"></script>
+        <script src="script.js"></script>
+    </div>
 </body>
-</html>
 
+</html>
