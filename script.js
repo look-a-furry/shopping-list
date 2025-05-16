@@ -17,10 +17,29 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             var span = document.createElement("span");
-            span.textContent = item;
+            span.textContent = `${item.name} (x${item.quantity})`;
             if (checkbox.checked) {
                 span.style.textDecoration = "line-through";
             }
+
+            var increaseBtn = document.createElement("button");
+            increaseBtn.textContent = "+";
+            increaseBtn.onclick = function() {
+                shoppingList[index].quantity++;
+                saveAndRender();
+            };
+
+            var decreaseBtn = document.createElement("button");
+            decreaseBtn.textContent = "-";
+            decreaseBtn.onclick = function() {
+                if (shoppingList[index].quantity > 1) {
+                    shoppingList[index].quantity--;
+                } else {
+                    removeItem(index);
+                    return;
+                }
+                saveAndRender();
+            };
 
             var editButton = document.createElement("button");
             editButton.textContent = "Edit";
@@ -38,6 +57,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
             li.appendChild(checkbox);
             li.appendChild(span);
+            li.appendChild(increaseBtn);
+            li.appendChild(decreaseBtn);
             li.appendChild(editButton);
             li.appendChild(removeButton);
 
@@ -47,6 +68,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function toggleStrikeThrough(index, isChecked) {
         checkedItems[index] = isChecked;
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
         localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
         renderShoppingList();
     }
@@ -56,11 +82,14 @@ document.addEventListener("DOMContentLoaded", function() {
         var item = inputField.value.trim();
         
         if (item !== "") {
-            shoppingList.push(item);
-            checkedItems.push(false);
-            localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-            localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
-            renderShoppingList();
+            const existingIndex = shoppingList.findIndex(i => i.name.toLowerCase() === item.toLowerCase());
+            if (existingIndex !== -1) {
+                shoppingList[existingIndex].quantity++;
+            } else {
+                shoppingList.push({ name: item, quantity: 1 });
+                checkedItems.push(false);
+            }
+            saveAndRender();
             inputField.value = "";
         }
     };
@@ -68,14 +97,12 @@ document.addEventListener("DOMContentLoaded", function() {
     window.removeItem = function(index) {
         shoppingList.splice(index, 1);
         checkedItems.splice(index, 1);
-        localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-        localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
-        renderShoppingList();
+        saveAndRender();
     };
 
     window.openEditDialog = function(index) {
         var editInput = document.getElementById("editInput");
-        editInput.value = shoppingList[index];
+        editInput.value = shoppingList[index].name;
         editDialog.style.display = "block";
         editDialog.dataset.targetIndex = index;
     };
@@ -83,9 +110,8 @@ document.addEventListener("DOMContentLoaded", function() {
     window.saveEdit = function() {
         var editInput = document.getElementById("editInput");
         var index = editDialog.dataset.targetIndex;
-        shoppingList[index] = editInput.value.trim();
-        localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-        renderShoppingList();
+        shoppingList[index].name = editInput.value.trim();
+        saveAndRender();
         closeEditDialog();
     };
 
@@ -96,16 +122,13 @@ document.addEventListener("DOMContentLoaded", function() {
     window.clearShoppingList = function() {
         shoppingList = [];
         checkedItems = [];
-        localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-        localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
-        renderShoppingList();
+        saveAndRender();
     };
 
-    // EXPORT CSV FUNCTION
     window.exportCSV = function() {
-        var csvContent = "data:text/csv;charset=utf-8,Item,Checked\n";
+        var csvContent = "data:text/csv;charset=utf-8,Item,Quantity,Checked\n";
         shoppingList.forEach((item, index) => {
-            csvContent += `"${item}",${checkedItems[index] ? "true" : "false"}\n`;
+            csvContent += `"${item.name}",${item.quantity},${checkedItems[index] ? "true" : "false"}\n`;
         });
 
         var encodedUri = encodeURI(csvContent);
@@ -117,36 +140,32 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.removeChild(link);
     };
 
-    // IMPORT CSV FUNCTION
     window.importCSV = function(event) {
         var file = event.target.files[0];
         if (!file) return;
 
         var reader = new FileReader();
         reader.onload = function(e) {
-            var content = e.target.result.split("\n").slice(1); // Skip header row
+            var content = e.target.result.split("\n").slice(1); // Skip header
             shoppingList = [];
             checkedItems = [];
 
             content.forEach(row => {
                 if (row.trim() !== "") {
-                    var [item, checked] = row.split(",");
-                    item = item.replace(/^"|"$/g, ""); // Remove quotes
-                    shoppingList.push(item);
-                    checkedItems.push(checked.trim() === "true");
+                    var [item, quantity, checked] = row.split(",");
+                    item = item.replace(/^"|"$/g, "");
+                    quantity = parseInt(quantity) || 1;
+                    shoppingList.push({ name: item, quantity: quantity });
+                    checkedItems.push((checked || "").trim() === "true");
                 }
             });
 
-            localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-            localStorage.setItem("checkedItems", JSON.stringify(checkedItems));
-            renderShoppingList();
+            saveAndRender();
         };
 
         reader.readAsText(file);
     };
 
-    // Add import button event listener
     document.getElementById("importFile").addEventListener("change", importCSV);
-
     renderShoppingList();
 });
